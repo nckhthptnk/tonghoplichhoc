@@ -1,684 +1,643 @@
 <!doctype html>
 <html lang="vi">
  <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Tổng hợp Dữ liệu</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tổng hợp dữ liệu A/B → Xuất PNG</title>
   <script src="/_sdk/element_sdk.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
-        body {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100%;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        .status-bar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .status-waiting {
-            background: #fff3cd;
-            color: #856404;
-            border: 2px solid #ffeaa7;
-        }
-
-        .status-received {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 2px solid #bee5eb;
-        }
-
-        .status-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
-
-        .icon-waiting {
-            background: #ffc107;
-            animation: pulse 2s infinite;
-        }
-
-        .icon-received {
-            background: #28a745;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .data-preview {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .preview-card {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-
-        .preview-card h3 {
-            margin: 0 0 15px 0;
-            color: #495057;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .preview-content {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .data-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f3f4;
-        }
-
-        .data-item:last-child {
-            border-bottom: none;
-        }
-
-        .data-key {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .data-value {
-            color: #6c757d;
-            text-align: right;
-            max-width: 200px;
-            word-wrap: break-word;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .file-upload {
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            text-align: center;
-            background: #f8f9fa;
-        }
-
-        .file-input {
-            margin: 10px;
-            padding: 8px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-        }
-
-        #export-area {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 2px solid #e9ecef;
-        }
-
-        .export-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .export-table th,
-        .export-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .export-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .export-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        @media (max-width: 768px) {
-            .data-preview {
-                grid-template-columns: 1fr;
-            }
-            
-            .status-bar {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    :root { 
+      --bg: #f7f7fb; 
+      --card: #ffffff; 
+      --muted: #6b7280; 
+      --ink: #111827; 
+      --line: #e5e7eb;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+    }
+    
+    * { box-sizing: border-box; }
+    
+    html, body { height: 100%; }
+    
+    body { 
+      margin: 0; 
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; 
+      background: var(--bg); 
+      color: var(--ink); 
+      line-height: 1.5;
+    }
+    
+    .wrap { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 24px 16px; 
+      min-height: 100%;
+    }
+    
+    .card { 
+      background: var(--card); 
+      border: 1px solid var(--line); 
+      border-radius: 16px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,.04); 
+      margin-bottom: 24px;
+    }
+    
+    .row { 
+      display: flex; 
+      gap: 24px; 
+      flex-wrap: wrap; 
+      margin-bottom: 24px;
+    }
+    
+    .col { 
+      flex: 1 1 360px; 
+    }
+    
+    h1 { 
+      font-size: 28px; 
+      margin: 0 0 8px; 
+      font-weight: 700;
+      color: var(--ink);
+    }
+    
+    h2 { 
+      font-size: 20px; 
+      margin: 0 0 16px; 
+      font-weight: 600;
+      color: var(--ink);
+    }
+    
+    .muted { 
+      color: var(--muted); 
+      font-size: 14px; 
+      margin: 8px 0;
+    }
+    
+    .section { 
+      padding: 24px; 
+    }
+    
+    .btn { 
+      padding: 12px 20px; 
+      border-radius: 10px; 
+      border: 1px solid var(--line); 
+      background: #fff; 
+      cursor: pointer; 
+      font-weight: 600; 
+      font-size: 14px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: #f9fafb;
+      border-color: var(--muted);
+    }
+    
+    .btn.primary { 
+      background: var(--primary); 
+      color: #fff; 
+      border-color: var(--primary); 
+    }
+    
+    .btn.primary:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .badge { 
+      font-size: 12px; 
+      padding: 4px 8px; 
+      border-radius: 6px; 
+      background: #eef2ff; 
+      color: #3730a3; 
+      border: 1px solid #c7d2fe; 
+      font-weight: 500;
+    }
+    
+    .badge.success {
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+    
+    .badge.warning {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+    
+    .grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 16px; 
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    
+    input[type="text"], input[type="file"], textarea { 
+      width: 100%; 
+      padding: 12px; 
+      border: 1px solid var(--line); 
+      border-radius: 10px; 
+      background: #fff; 
+      font-family: inherit; 
+      font-size: 14px;
+      transition: border-color 0.2s ease;
+    }
+    
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .data-preview { 
+      background: #f9fafb; 
+      border: 1px solid var(--line); 
+      border-radius: 10px; 
+      padding: 16px; 
+      min-height: 120px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 16px;
+    }
+    
+    th, td { 
+      border: 1px solid var(--line); 
+      padding: 12px; 
+      text-align: left; 
+      font-size: 14px; 
+      vertical-align: top; 
+    }
+    
+    th { 
+      background: #f3f4f6; 
+      font-weight: 600;
+    }
+    
+    #export-area { 
+      background: #fff; 
+      padding: 32px; 
+      border: 2px dashed var(--line); 
+      border-radius: 16px; 
+      margin-top: 24px;
+    }
+    
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .file-input-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .row {
+        flex-direction: column;
+      }
+      
+      .wrap {
+        padding: 16px 12px;
+      }
+      
+      .section {
+        padding: 16px;
+      }
+    }
+  </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
   <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
  </head>
  <body>
-  <div class="container">
-   <div class="header">
-    <h1 id="page-title">Trang Tổng hợp Dữ liệu</h1>
-    <p>Nhận và tổng hợp dữ liệu từ các trang nguồn</p>
+  <div class="wrap">
+   <div class="section" style="padding-bottom:0">
+    <h1 id="app-title">Tổng hợp dữ liệu từ 2 trang → Xuất PNG</h1>
+    <p class="muted" id="description-text">Nhận dữ liệu qua <code>postMessage</code> từ 2 nguồn (whitelist), xem trước &amp; xuất ảnh PNG (client-only).</p>
    </div>
-   <div class="status-bar">
-    <div class="status-badge status-waiting" id="status-lichtrinhcanhan">
-     <div class="status-icon icon-waiting"></div><span>Lịch trình cá nhân: Đang chờ...</span>
-    </div>
-    <div class="status-badge status-waiting" id="status-tkbnk2526hs">
-     <div class="status-icon icon-waiting"></div><span>TKBNK 2526HS: Đang chờ...</span>
-    </div>
-   </div>
-   <div class="content">
-    <div class="file-upload">
-     <h3>📁 Fallback: Tải file JSON thủ công</h3>
-     <p>Nếu không nhận được dữ liệu tự động, bạn có thể tải file JSON:</p><input type="file" id="file-lichtrinhcanhan" class="file-input" accept=".json"> <label>Lịch trình cá nhân</label> <input type="file" id="file-tkbnk2526hs" class="file-input" accept=".json"> <label>TKBNK 2526HS</label>
-    </div>
-    <div class="data-preview">
-     <div class="preview-card">
-      <h3>📅 Lịch trình cá nhân <span id="timestamp-lichtrinhcanhan" style="font-size: 0.8rem; color: #6c757d;"></span></h3>
-      <div class="preview-content" id="preview-lichtrinhcanhan">
-       <div class="empty-state">
-        <svg viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-        </svg>
-        <p>Chưa nhận được dữ liệu</p>
-       </div>
+   <div class="row">
+    <div class="col card section">
+     <h2>1) Whitelist nguồn</h2>
+     <div class="grid">
+      <div><label id="origin1-label">Origin 1</label> <input id="origin1" type="text" value="https://nckhthptnk.github.io">
+      </div>
+      <div><label id="origin2-label">Origin 2</label> <input id="origin2" type="text" value="https://tkbnkhoahung.github.io">
       </div>
      </div>
-     <div class="preview-card">
-      <h3>📚 TKBNK 2526HS <span id="timestamp-tkbnk2526hs" style="font-size: 0.8rem; color: #6c757d;"></span></h3>
-      <div class="preview-content" id="preview-tkbnk2526hs">
-       <div class="empty-state">
-        <svg viewbox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-        </svg>
-        <p>Chưa nhận được dữ liệu</p>
-       </div>
+     <div class="status-indicator">
+      <div class="status-dot"></div><span class="badge" id="listen-badge">Đang lắng nghe postMessage</span> <button class="btn" id="resetBtn">Xóa dữ liệu nhận</button>
+     </div>
+     <p class="muted">Nhấn "Gửi sang Tổng hợp" trên A/B để đẩy dữ liệu qua đây.</p>
+    </div>
+    <div class="col card section">
+     <h2>2) Nạp thủ công (fallback)</h2>
+     <div class="file-input-wrapper"><input type="file" id="file1" accept="application/json"> <span class="badge">lichtrinhcanhan.json</span>
+     </div>
+     <div class="file-input-wrapper"><input type="file" id="file2" accept="application/json"> <span class="badge">tkbnk2526hs.json</span>
+     </div>
+     <p class="muted">Nếu không chèn script vào nguồn, xuất JSON và nạp tại đây.</p>
+    </div>
+   </div>
+   <div class="card section">
+    <h2>3) Dữ liệu đã nhận</h2>
+    <div class="summary-stats">
+     <div class="stat-card">
+      <div class="stat-number" id="source1-count">
+       0
+      </div>
+      <div class="stat-label">
+       Nguồn 1 - Bản ghi
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-number" id="source2-count">
+       0
+      </div>
+      <div class="stat-label">
+       Nguồn 2 - Bản ghi
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-number" id="total-count">
+       0
+      </div>
+      <div class="stat-label">
+       Tổng cộng
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-number" id="last-updated">
+       --
+      </div>
+      <div class="stat-label">
+       Cập nhật cuối
       </div>
      </div>
     </div>
-    <div class="controls"><button class="btn btn-primary" id="btn-aggregate" disabled> 🔄 Tổng hợp lại </button> <button class="btn btn-success" id="btn-export" disabled> 📸 Xuất PNG </button>
+    <div class="data-preview" id="dataPreview">
+     Chưa có dữ liệu nào được nhận...
     </div>
-    <div id="export-area" style="display: none;">
-     <h2>📊 Bảng Tổng hợp Dữ liệu</h2>
-     <p id="export-timestamp"></p>
-     <table class="export-table" id="export-table">
-      <thead>
-       <tr>
-        <th>Nguồn</th>
-        <th>Trường dữ liệu</th>
-        <th>Giá trị</th>
-       </tr>
-      </thead>
-      <tbody id="export-tbody">
-      </tbody>
-     </table>
+   </div>
+   <div class="card section">
+    <h2>4) Xuất PNG</h2>
+    <p class="muted">Khu vực bên dưới sẽ được chụp và xuất thành file PNG.</p>
+    <div style="display: flex; gap: 12px; margin-bottom: 16px;"><button class="btn primary" id="exportBtn">
+      <svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <polyline points="7,10 12,15 17,10" /> <line x1="12" y1="15" x2="12" y2="3" />
+      </svg><span id="export-button-text">Xuất PNG</span> </button> <button class="btn" id="previewBtn">Xem trước</button>
+    </div>
+    <div id="export-area">
+     <h2 style="text-align: center; margin-bottom: 24px;">Báo cáo tổng hợp dữ liệu</h2>
+     <div id="export-content">
+      <p style="text-align: center; color: var(--muted);">Chưa có dữ liệu để hiển thị</p>
+     </div>
     </div>
    </div>
   </div>
   <script>
-        // Cấu hình mặc định
-        const defaultConfig = {
-            page_title: "Trang Tổng hợp Dữ liệu",
-            export_filename: "tonghop-dulieu"
-        };
-
-        // Whitelist origins
-        const ALLOWED_ORIGINS = [
-            'https://nckhthptnk.github.io',
-            'https://tkbnkhoahung.github.io'
-        ];
-
-        // Lưu trữ dữ liệu nhận được
-        let receivedData = {
-            lichtrinhcanhan: null,
-            tkbnk2526hs: null
-        };
-
-        // Khởi tạo Element SDK
-        async function initializeSDK() {
-            if (window.elementSdk) {
-                await window.elementSdk.init({
-                    defaultConfig,
-                    onConfigChange: async (config) => {
-                        document.getElementById('page-title').textContent = 
-                            config.page_title || defaultConfig.page_title;
-                    },
-                    mapToCapabilities: (config) => ({
-                        recolorables: [],
-                        borderables: [],
-                        fontEditable: undefined,
-                        fontSizeable: undefined
-                    }),
-                    mapToEditPanelValues: (config) => new Map([
-                        ['page_title', config.page_title || defaultConfig.page_title],
-                        ['export_filename', config.export_filename || defaultConfig.export_filename]
-                    ])
-                });
-            }
-        }
-
-        // Lắng nghe tin nhắn từ các trang nguồn
-        window.addEventListener('message', function(event) {
-            // Kiểm tra origin whitelist
-            if (!ALLOWED_ORIGINS.includes(event.origin)) {
-                console.warn('Từ chối tin nhắn từ origin không được phép:', event.origin);
-                return;
-            }
-
-            const message = event.data;
-            
-            // Kiểm tra định dạng tin nhắn
-            if (message.type === 'TKB_DATA' && message.source && message.data) {
-                console.log('Nhận được dữ liệu từ:', message.source);
-                
-                // Lưu dữ liệu
-                receivedData[message.source] = message;
-                
-                // Cập nhật UI
-                updateStatus(message.source, true);
-                updatePreview(message.source, message.data, message.timestamp);
-                updateControls();
-            }
-        });
-
-        // Cập nhật trạng thái nhận dữ liệu
-        function updateStatus(source, received) {
-            const statusElement = document.getElementById(`status-${source}`);
-            const iconElement = statusElement.querySelector('.status-icon');
-            
-            if (received) {
-                statusElement.className = 'status-badge status-received';
-                statusElement.querySelector('span').textContent = 
-                    source === 'lichtrinhcanhan' ? 'Lịch trình cá nhân: Đã nhận ✓' : 'TKBNK 2526HS: Đã nhận ✓';
-                iconElement.className = 'status-icon icon-received';
-            }
-        }
-
-        // Cập nhật preview dữ liệu
-        function updatePreview(source, data, timestamp) {
-            const previewElement = document.getElementById(`preview-${source}`);
-            const timestampElement = document.getElementById(`timestamp-${source}`);
-            
-            // Hiển thị timestamp
-            if (timestamp) {
-                const date = new Date(timestamp);
-                timestampElement.textContent = `(${date.toLocaleString('vi-VN')})`;
-            }
-            
-            // Hiển thị dữ liệu
-            let html = '';
-            for (const [key, value] of Object.entries(data)) {
-                html += `
-                    <div class="data-item">
-                        <span class="data-key">${key}:</span>
-                        <span class="data-value">${value}</span>
-                    </div>
-                `;
-            }
-            
-            previewElement.innerHTML = html;
-        }
-
-        // Cập nhật trạng thái các nút điều khiển
-        function updateControls() {
-            const hasData = receivedData.lichtrinhcanhan || receivedData.tkbnk2526hs;
-            document.getElementById('btn-aggregate').disabled = !hasData;
-            document.getElementById('btn-export').disabled = !hasData;
-        }
-
-        // Xử lý tổng hợp dữ liệu
-        document.getElementById('btn-aggregate').addEventListener('click', function() {
-            const exportArea = document.getElementById('export-area');
-            const exportTable = document.getElementById('export-tbody');
-            const exportTimestamp = document.getElementById('export-timestamp');
-            
-            // Xóa dữ liệu cũ
-            exportTable.innerHTML = '';
-            
-            // Tạo timestamp
-            exportTimestamp.textContent = `Tổng hợp lúc: ${new Date().toLocaleString('vi-VN')}`;
-            
-            // Tổng hợp dữ liệu
-            for (const [sourceKey, sourceData] of Object.entries(receivedData)) {
-                if (sourceData && sourceData.data) {
-                    const sourceName = sourceKey === 'lichtrinhcanhan' ? 'Lịch trình cá nhân' : 'TKBNK 2526HS';
-                    
-                    for (const [key, value] of Object.entries(sourceData.data)) {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${sourceName}</td>
-                            <td>${key}</td>
-                            <td>${value}</td>
-                        `;
-                        exportTable.appendChild(row);
-                    }
-                }
-            }
-            
-            // Hiển thị vùng xuất
-            exportArea.style.display = 'block';
-            exportArea.scrollIntoView({ behavior: 'smooth' });
-        });
-
-        // Xử lý xuất PNG
-        document.getElementById('btn-export').addEventListener('click', async function() {
-            const exportArea = document.getElementById('export-area');
-            const button = this;
-            
-            if (exportArea.style.display === 'none') {
-                alert('Vui lòng nhấn "Tổng hợp lại" trước khi xuất PNG');
-                return;
-            }
-            
-            button.disabled = true;
-            button.innerHTML = '⏳ Đang xuất...';
-            
-            try {
-                const canvas = await html2canvas(exportArea, {
-                    backgroundColor: '#ffffff',
-                    scale: 2,
-                    logging: false,
-                    useCORS: true
-                });
-                
-                // Tạo link tải xuống
-                const link = document.createElement('a');
-                const filename = window.elementSdk?.config?.export_filename || defaultConfig.export_filename;
-                link.download = `${filename}-${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                button.innerHTML = '✅ Đã xuất!';
-                setTimeout(() => {
-                    button.innerHTML = '📸 Xuất PNG';
-                    button.disabled = false;
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Lỗi khi xuất PNG:', error);
-                button.innerHTML = '❌ Lỗi xuất';
-                setTimeout(() => {
-                    button.innerHTML = '📸 Xuất PNG';
-                    button.disabled = false;
-                }, 2000);
-            }
-        });
-
-        // Xử lý tải file JSON thủ công
-        document.getElementById('file-lichtrinhcanhan').addEventListener('change', function(e) {
-            handleFileUpload(e, 'lichtrinhcanhan');
-        });
-
-        document.getElementById('file-tkbnk2526hs').addEventListener('change', function(e) {
-            handleFileUpload(e, 'tkbnk2526hs');
-        });
-
-        function handleFileUpload(event, source) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    // Tạo message giả lập
-                    const message = {
-                        type: 'TKB_DATA',
-                        source: source,
-                        url: 'manual-upload',
-                        timestamp: Date.now(),
-                        data: data
-                    };
-                    
-                    // Xử lý như tin nhắn thông thường
-                    receivedData[source] = message;
-                    updateStatus(source, true);
-                    updatePreview(source, data, message.timestamp);
-                    updateControls();
-                    
-                } catch (error) {
-                    alert('Lỗi đọc file JSON: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // Khởi tạo ứng dụng
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeSDK();
-            updateControls();
-        });
-    </script><button id="send-to-aggregator" style="padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;"> 📤 Gửi sang Tổng hợp </button>
-  <script>
-document.getElementById('send-to-aggregator').addEventListener('click', function() {
-    const SOURCE_ID = 'lichtrinhcanhan';
-    const TARGET_ORIGIN = 'https://nckhthptnk.github.io';
-    
-    // Quét toàn bộ input, select, textarea
-    const formData = {};
-    
-    // Input fields
-    document.querySelectorAll('input').forEach(input => {
-        if (input.type === 'checkbox' || input.type === 'radio') {
-            if (input.checked) {
-                formData[input.name || input.id || `input_${Math.random()}`] = input.value || 'checked';
-            }
-        } else {
-            formData[input.name || input.id || `input_${Math.random()}`] = input.value;
-        }
-    });
-    
-    // Select fields
-    document.querySelectorAll('select').forEach(select => {
-        formData[select.name || select.id || `select_${Math.random()}`] = select.value;
-    });
-    
-    // Textarea fields
-    document.querySelectorAll('textarea').forEach(textarea => {
-        formData[textarea.name || textarea.id || `textarea_${Math.random()}`] = textarea.value;
-    });
-    
-    // Tạo gói tin
-    const message = {
-        type: 'TKB_DATA',
-        source: SOURCE_ID,
-        url: window.location.href,
-        timestamp: Date.now(),
-        data: formData
+    // Configuration object for editable features
+    const defaultConfig = {
+      app_title: "Tổng hợp dữ liệu từ 2 trang → Xuất PNG",
+      description_text: "Nhận dữ liệu qua postMessage từ 2 nguồn (whitelist), xem trước & xuất ảnh PNG (client-only).",
+      origin1_label: "Origin 1",
+      origin2_label: "Origin 2", 
+      export_button_text: "Xuất PNG"
     };
-    
-    // Gửi đến aggregator
-    const aggregatorWindow = window.open('https://nckhthptnk.github.io/tonghop/', '_blank');
-    
-    // Đợi trang tải xong rồi gửi tin nhắn
-    setTimeout(() => {
-        aggregatorWindow.postMessage(message, TARGET_ORIGIN);
-    }, 2000);
-    
-    // Thông báo thành công
-    this.innerHTML = '✅ Đã gửi!';
-    this.style.background = '#28a745';
-    setTimeout(() => {
-        this.innerHTML = '📤 Gửi sang Tổng hợp';
-        this.style.background = '#007bff';
-    }, 3000);
-});
-</script><button id="send-to-aggregator" style="padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;"> 📤 Gửi sang Tổng hợp </button>
-  <script>
-document.getElementById('send-to-aggregator').addEventListener('click', function() {
-    const SOURCE_ID = 'tkbnk2526hs';
-    const TARGET_ORIGIN = 'https://nckhthptnk.github.io';
-    
-    // Quét toàn bộ input, select, textarea
-    const formData = {};
-    
-    // Input fields
-    document.querySelectorAll('input').forEach(input => {
-        if (input.type === 'checkbox' || input.type === 'radio') {
-            if (input.checked) {
-                formData[input.name || input.id || `input_${Math.random()}`] = input.value || 'checked';
-            }
-        } else {
-            formData[input.name || input.id || `input_${Math.random()}`] = input.value;
-        }
-    });
-    
-    // Select fields
-    document.querySelectorAll('select').forEach(select => {
-        formData[select.name || select.id || `select_${Math.random()}`] = select.value;
-    });
-    
-    // Textarea fields
-    document.querySelectorAll('textarea').forEach(textarea => {
-        formData[textarea.name || textarea.id || `textarea_${Math.random()}`] = textarea.value;
-    });
-    
-    // Tạo gói tin
-    const message = {
-        type: 'TKB_DATA',
-        source: SOURCE_ID,
-        url: window.location.href,
-        timestamp: Date.now(),
-        data: formData
+
+    // Data storage
+    let receivedData = {
+      source1: null,
+      source2: null,
+      lastUpdated: null
     };
-    
-    // Gửi đến aggregator
-    const aggregatorWindow = window.open('https://nckhthptnk.github.io/tonghop/', '_blank');
-    
-    // Đợi trang tải xong rồi gửi tin nhắn
-    setTimeout(() => {
-        aggregatorWindow.postMessage(message, TARGET_ORIGIN);
-    }, 2000);
-    
-    // Thông báo thành công
-    this.innerHTML = '✅ Đã gửi!';
-    this.style.background = '#28a745';
-    setTimeout(() => {
-        this.innerHTML = '📤 Gửi sang Tổng hợp';
-        this.style.background = '#007bff';
-    }, 3000);
-});
-</script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9968dd4237278b94',t:'MTc2MTgwNTgyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+    // DOM elements
+    const elements = {
+      origin1: document.getElementById('origin1'),
+      origin2: document.getElementById('origin2'),
+      resetBtn: document.getElementById('resetBtn'),
+      file1: document.getElementById('file1'),
+      file2: document.getElementById('file2'),
+      dataPreview: document.getElementById('dataPreview'),
+      exportBtn: document.getElementById('exportBtn'),
+      previewBtn: document.getElementById('previewBtn'),
+      exportArea: document.getElementById('export-area'),
+      exportContent: document.getElementById('export-content'),
+      source1Count: document.getElementById('source1-count'),
+      source2Count: document.getElementById('source2-count'),
+      totalCount: document.getElementById('total-count'),
+      lastUpdated: document.getElementById('last-updated')
+    };
+
+    // Initialize postMessage listener
+    function initPostMessageListener() {
+      window.addEventListener('message', (event) => {
+        const origin1 = elements.origin1.value.trim();
+        const origin2 = elements.origin2.value.trim();
+        
+        if (event.origin !== origin1 && event.origin !== origin2) {
+          console.warn('Rejected message from unauthorized origin:', event.origin);
+          return;
+        }
+
+        try {
+          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          
+          if (event.origin === origin1) {
+            receivedData.source1 = data;
+          } else if (event.origin === origin2) {
+            receivedData.source2 = data;
+          }
+          
+          receivedData.lastUpdated = new Date();
+          updateDisplay();
+          
+        } catch (error) {
+          console.error('Error processing received data:', error);
+        }
+      });
+    }
+
+    // File upload handlers
+    function setupFileHandlers() {
+      elements.file1.addEventListener('change', (e) => handleFileUpload(e, 'source1'));
+      elements.file2.addEventListener('change', (e) => handleFileUpload(e, 'source2'));
+    }
+
+    function handleFileUpload(event, source) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          receivedData[source] = data;
+          receivedData.lastUpdated = new Date();
+          updateDisplay();
+        } catch (error) {
+          alert('Lỗi đọc file JSON: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Update display functions
+    function updateDisplay() {
+      updatePreview();
+      updateStats();
+      updateExportContent();
+    }
+
+    function updatePreview() {
+      const preview = {
+        source1: receivedData.source1,
+        source2: receivedData.source2,
+        lastUpdated: receivedData.lastUpdated?.toLocaleString('vi-VN')
+      };
+      
+      elements.dataPreview.textContent = JSON.stringify(preview, null, 2);
+    }
+
+    function updateStats() {
+      const count1 = receivedData.source1 ? (Array.isArray(receivedData.source1) ? receivedData.source1.length : 1) : 0;
+      const count2 = receivedData.source2 ? (Array.isArray(receivedData.source2) ? receivedData.source2.length : 1) : 0;
+      
+      elements.source1Count.textContent = count1;
+      elements.source2Count.textContent = count2;
+      elements.totalCount.textContent = count1 + count2;
+      elements.lastUpdated.textContent = receivedData.lastUpdated ? 
+        receivedData.lastUpdated.toLocaleTimeString('vi-VN') : '--';
+    }
+
+    function updateExportContent() {
+      if (!receivedData.source1 && !receivedData.source2) {
+        elements.exportContent.innerHTML = '<p style="text-align: center; color: var(--muted);">Chưa có dữ liệu để hiển thị</p>';
+        return;
+      }
+
+      let html = '<div style="margin-bottom: 24px;">';
+      
+      if (receivedData.lastUpdated) {
+        html += `<p style="text-align: center; color: var(--muted); margin-bottom: 16px;">Cập nhật: ${receivedData.lastUpdated.toLocaleString('vi-VN')}</p>`;
+      }
+
+      // Summary table
+      html += '<table style="margin-bottom: 24px;"><thead><tr><th>Nguồn</th><th>Số bản ghi</th><th>Trạng thái</th></tr></thead><tbody>';
+      
+      const count1 = receivedData.source1 ? (Array.isArray(receivedData.source1) ? receivedData.source1.length : 1) : 0;
+      const count2 = receivedData.source2 ? (Array.isArray(receivedData.source2) ? receivedData.source2.length : 1) : 0;
+      
+      html += `<tr><td>Nguồn 1</td><td>${count1}</td><td>${receivedData.source1 ? '✅ Có dữ liệu' : '❌ Chưa có'}</td></tr>`;
+      html += `<tr><td>Nguồn 2</td><td>${count2}</td><td>${receivedData.source2 ? '✅ Có dữ liệu' : '❌ Chưa có'}</td></tr>`;
+      html += `<tr style="font-weight: bold;"><td>Tổng cộng</td><td>${count1 + count2}</td><td>-</td></tr>`;
+      html += '</tbody></table>';
+
+      // Data preview
+      if (receivedData.source1) {
+        html += '<h3>Dữ liệu nguồn 1:</h3>';
+        html += `<pre style="background: #f9fafb; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto;">${JSON.stringify(receivedData.source1, null, 2)}</pre>`;
+      }
+
+      if (receivedData.source2) {
+        html += '<h3>Dữ liệu nguồn 2:</h3>';
+        html += `<pre style="background: #f9fafb; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto;">${JSON.stringify(receivedData.source2, null, 2)}</pre>`;
+      }
+
+      html += '</div>';
+      elements.exportContent.innerHTML = html;
+    }
+
+    // Export functionality
+    async function exportToPNG() {
+      try {
+        elements.exportBtn.disabled = true;
+        elements.exportBtn.innerHTML = '<span>Đang xuất...</span>';
+
+        const canvas = await html2canvas(elements.exportArea, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          useCORS: true,
+          allowTaint: true
+        });
+
+        const link = document.createElement('a');
+        link.download = `data-summary-${new Date().toISOString().slice(0, 10)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('Lỗi xuất PNG: ' + error.message);
+      } finally {
+        elements.exportBtn.disabled = false;
+        updateExportButtonText();
+      }
+    }
+
+    function updateExportButtonText() {
+      const config = window.elementSdk?.config || defaultConfig;
+      elements.exportBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7,10 12,15 17,10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        <span>${config.export_button_text}</span>
+      `;
+    }
+
+    // Reset functionality
+    function resetData() {
+      receivedData = {
+        source1: null,
+        source2: null,
+        lastUpdated: null
+      };
+      updateDisplay();
+    }
+
+    // Event listeners
+    function setupEventListeners() {
+      elements.resetBtn.addEventListener('click', resetData);
+      elements.exportBtn.addEventListener('click', exportToPNG);
+      elements.previewBtn.addEventListener('click', () => {
+        elements.exportArea.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    // Element SDK integration
+    async function onConfigChange(config) {
+      // Update text content
+      document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+      document.getElementById('description-text').textContent = config.description_text || defaultConfig.description_text;
+      document.getElementById('origin1-label').textContent = config.origin1_label || defaultConfig.origin1_label;
+      document.getElementById('origin2-label').textContent = config.origin2_label || defaultConfig.origin2_label;
+      
+      updateExportButtonText();
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["app_title", config.app_title || defaultConfig.app_title],
+        ["description_text", config.description_text || defaultConfig.description_text],
+        ["origin1_label", config.origin1_label || defaultConfig.origin1_label],
+        ["origin2_label", config.origin2_label || defaultConfig.origin2_label],
+        ["export_button_text", config.export_button_text || defaultConfig.export_button_text]
+      ]);
+    }
+
+    // Initialize application
+    function init() {
+      initPostMessageListener();
+      setupFileHandlers();
+      setupEventListeners();
+      updateDisplay();
+      
+      // Initialize Element SDK if available
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities,
+          mapToEditPanelValues
+        });
+      }
+    }
+
+    // Start the application
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9968f9f5706d859d',t:'MTc2MTgwNzAwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
